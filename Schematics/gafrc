@@ -1,0 +1,5 @@
+(component-library ".")
+(component-library "../Components/wn2a_symbol_files/")
+(component-library "../Board_files/wn2a_footprint_files/")
+(component-library-search "../Board_files/wn2a_footprint_files/")
+(source-library ".")

@@ -1,0 +1,52 @@
+unnamed_net40	U2-19 C3-1 
+unnamed_net39	U2-24 C5-2 
+unnamed_net38	U2-23 C4-2 
+unnamed_net37	J3-1 C14-1 
+unnamed_net36	U2-12 C14-2 R9-1 
+unnamed_net35	U2-13 R8-1 
+unnamed_net34	U2-15 R4-2 
+unnamed_net33	R13-2 C22-2 
+unnamed_net32	R13-1 U2-5 R17-1 
+unnamed_net31	U2-26 R5-1 R7-2 
+REF_OSC	U1-3 C13-2 
+unnamed_net30	U2-29 C13-1 
+unnamed_net29	U2-14 R3-2 C10-2 
+unnamed_net28	J2-1 C10-1 
+unnamed_net27	C21-1 C22-1 U2-7 R1-1 
+unnamed_net26	U2-20 R1-2 C2-1 
+unnamed_net25	U2-2 R11-1 R15-2 
+unnamed_net24	U2-3 R12-1 R14-2 
+unnamed_net23	U2-22 R2-1 
+unnamed_net22	U2-1 R10-1 R16-2 
+unnamed_net21	D1-2 R6-1 
++3.3V_PLL	U2-10 C16-1 C15-1 C24-1 U2-6 C23-1 U5-4 C30-2 U5-2 
++3.3V_DIG	U2-4 U2-28 C11-1 C12-1 U2-32 C18-1 C17-1 U4-4 C28-2 U4-2 
+unnamed_net20	C25-2 D3-1 D2-1 D4-1 C29-2 U5-3 C27-2 U4-3 U3-3 
++3.3V_RF	C1-2 U1-4 U1-1 C20-1 R9-2 C19-1 R8-2 U2-16 C9-1 C8-1 R3-1 R4-1 U2-17 C7-1 C6-1 C26-2 U3-4 U3-2 
+unnamed_net19	D4-2 J4-1 
+unnamed_net18	J1-17 
+unnamed_net17	J1-18 
+PLL_LE	R12-2 J1-19 
+unnamed_net16	J1-16 
+unnamed_net15	J1-15 
+unnamed_net14	J1-14 
+PLL_DATA	R11-2 J1-20 
+unnamed_net13	J1-13 
+PLL_CLK	R10-2 J1-21 
+unnamed_net12	J1-12 
+PLL_MUX	U2-30 J1-22 
+unnamed_net11	J1-11 
+unnamed_net10	D3-2 J1-23 
+unnamed_net9	J1-10 
+unnamed_net8	J1-9 
+GND	U2-9 U2-33 U2-31 U2-18 U2-11 U2-8 U2-27 J3-5 J3-4 J3-3 J3-2 J2-5 J2-4 J2-3 J2-2 C3-2 C5-1 C4-1 C26-1 C25-1 C1-1 U1-2 C20-2 C19-2 C9-2 C8-2 C16-2 C15-2 C24-2 C11-2 C18-2 C7-2 C12-2 C21-2 R17-2 C23-2 \
+ C17-2 R7-1 C2-2 R15-1 R14-1 U2-21 R2-2 R16-1 C6-2 C30-1 C29-1 U5-1 C28-1 C27-1 U4-1 U3-1 J4-2 J1-24 J1-25 
+unnamed_net7	J1-8 
+unnamed_net6	D2-2 R6-2 J1-26 
+unnamed_net5	D1-1 J1-7 
+RF_EN	R5-2 J1-6 
+unnamed_net4	J1-5 
+LOCK_DET	U2-25 J1-4 
+unnamed_net3	J1-3 
+unnamed_net2	J1-2 
+unnamed_net1	J1-1 
