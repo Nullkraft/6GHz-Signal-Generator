@@ -1,2 +1,3 @@
 schematics wn2a-SigGen-page1.sch
 output-name wn2a-SigGen
+skip-m4
