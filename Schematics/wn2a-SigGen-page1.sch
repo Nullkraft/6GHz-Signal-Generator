@@ -1,4 +1,4 @@
-v 20130925 2
+v 20201216 2
 C 27700 57300 1 0 0 header32-1.sym
 {
 T 28400 62600 5 10 1 1 0 0 1
@@ -13,7 +13,7 @@ T 27700 57300 5 10 0 0 0 0 1
 man-part-num=1528-1074-ND
 T 28100 56900 5 10 1 1 0 0 1
 description=Arduino Headers
-T 27700 57300 5 10 0 0 0 0 1
+T 27700 57100 5 10 0 0 0 0 1
 footprint=Header_Arduino-short
 }
 C 22400 54100 1 180 1 pwrjack-1.sym
