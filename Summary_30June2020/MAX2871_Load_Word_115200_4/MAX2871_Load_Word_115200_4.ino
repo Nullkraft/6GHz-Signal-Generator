@@ -1,4 +1,4 @@
-//************************************************
+//************************************************************************************************
 //  Name    : MAX2871_Load_Word_4.ino
 //  Author  : WN2A and Mark Stanley
 //  Date    : 27 June 2020
@@ -17,18 +17,23 @@
 //          : the operation of the MAX2871. It requires the use of a companion program 
 //          : (FreeBasic: MAX2871_Command_4.bas) running on the host PC. The host PC calculates the 
 //          : register values from the frequency given by the user.
-//************************************************
+//************************************************************************************************
 
 unsigned long z;
-int latchPin = 17;  // MAX2871 LE
-int clockPin = 15;  // MAX2871 SCLK
-int dataPin = 16;   // MAX2871 DATA
+int latchPin = A3;  // MAX2871 LE
+int clockPin = A1;  // MAX2871 SCLK
+int dataPin = A2;   // MAX2871 DATA
 int strobe = 10;    // MAX2871 STROBE
 int RF_En = 5;      // MAX2871 RF_EN
 int LED = 13;       // Arduino LED
 int incomingByte;
 
+int count;
+
 void setup() {
+  Serial.begin(115200);
+  Serial.println("MAX2871_Load_Word_115200_4.ino 2 July 2020");
+  
   // set pins to output because they are addressed in the main loop
   pinMode(RF_En, OUTPUT);
   pinMode(latchPin, OUTPUT);
@@ -36,13 +41,13 @@ void setup() {
   pinMode(dataPin, OUTPUT);
   pinMode(strobe, OUTPUT);
   pinMode(LED, OUTPUT);
-  Serial.begin(115200);
-  Serial.println("MAX2871_Load_Word_115200_4.ino 2 July 2020");
+  
   digitalWrite(RF_En, HIGH);      // Turn on the MAX2871 RF Output
-  digitalWrite(LED, HIGH);        // Turn on the Arduino LED
-  digitalWrite(latchPin, LOW);    // Latch must start LOW
+  digitalWrite(LED, LOW);        // Turn on the Arduino LED
+  digitalWrite(latchPin, HIGH);    // Latch must start LOW
   digitalWrite(strobe, LOW);      // Strobe must start LOW
   z = 0;
+  count = 0;
 }
 
 void loop() {
@@ -53,22 +58,23 @@ void loop() {
   if (z > 0) {
     setFrequency();
   }
-
 }
 
 // Load 4 control registers of the MAX2871 for setting the frequency
 void setFrequency() {
-  digitalWrite (strobe, HIGH);
+//  digitalWrite (strobe, HIGH);
+//  delayMicroseconds(10);
+//  digitalWrite (strobe, LOW);
+  digitalWrite(latchPin, LOW);
   delayMicroseconds(10);
-  digitalWrite (strobe, LOW);
   shiftOut(dataPin, clockPin, MSBFIRST, z >> 24);
   shiftOut(dataPin, clockPin, MSBFIRST, z >> 16);
   shiftOut(dataPin, clockPin, MSBFIRST, z >> 8);
   shiftOut(dataPin, clockPin, MSBFIRST, z);
-  delayMicroseconds(1);
-  digitalWrite(latchPin, HIGH);
   delayMicroseconds(10);
-  digitalWrite(latchPin, LOW);
+  digitalWrite(latchPin, HIGH);
+//  delayMicroseconds(10);
+//  digitalWrite(latchPin, LOW);
 }
 
 

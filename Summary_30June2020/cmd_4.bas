@@ -5,21 +5,29 @@ dim shared as double Fvco,N,FracT,Num,Fchsp,Re,Fout,TimeA,TimeB
 dim shared as string Ans,ComStr,Ans1,Ans2,t,delaystr,FracOpt
 dim shared as string delayst,Message,Remark,Sweep
 dim shared as integer div,Flag,Range,OldRange,delay,RefDiv,f
-dim shared as integer MOD1,Fracc,NewMOD1,NewFracc,Mode
+dim shared as integer MOD1,Fracc,NewMOD1,NewFracc,Mode, idx
 dim shared as single Fstart,Fstop,Freqs,Fpfd,Fref,Frf,FrfEst,FvcoEst,Initial,FracErr,Finc,Frfv(401)
 Flag=0 : Remark=" Sorry Dave, I'm afraid can't do that "
 
 sub Transmit 'This routine initializes MAX2871 at f=0
 print "First we initialize the MAX2871 (twice)"
 for z=0 to 1 'do the Reg 5-4-3-2-1-0 cycle twice
-for y=0 to 5 : x=(5-y) 
-  write #1,Reg(x,0) 'print "Hello from Transmit x= ";x;" Reg(x,0)= ";Reg(x,0);" NI=";NI;" Fracc=";Fracc;" MOD1=";MOD1
-  sleep 100
-  OldReg(x)=Reg(x,0)
-next y
+    for y=0 to 5 : x=(5-y) 
+      write #1,Reg(x,0) 'print "Hello from Transmit x= ";x;" Reg(x,0)= ";Reg(x,0);" NI=";NI;" Fracc=";Fracc;" MOD1=";MOD1
+      if Flag = 1 then print Reg(x, 0)
+      sleep 100
+      OldReg(x)=Reg(x,0)
+    next y
+    Flag=1
 next z
-Flag=1 
+Flag=1
 end sub
+
+'sub TransmitF 'For Frequency/Range or Power changes. Enter with Ref(x,f), f
+    'idx = 0
+    'write #1, Reg(idx, f)
+    'print idx, "Transmit"
+'end sub
 
 sub TransmitF 'For Frequency/Range or Power changes. Enter with Ref(x,f), f
  for y=0 to 5 :x=(5-y)
@@ -60,11 +68,13 @@ restore Datarow1 'Restore Data Pointer 1
 for x=0 to 5 : read Reg(x,f) : next 'Initialize Reg(x,f) default decimal Values
 Reg(0,f)=(NI*(2^15))+(Fracc*(2^3))
 Reg(1,f)=(2^29)+(2^15)+(MOD1*(2^3))+1
-Reg(4,f)=1670377980+((2^20)*Range)
+'Reg(4,f)=1670377764+((2^20)*Range)     ' -4 dB RF Output power
+'Reg(4,f)=1670377908+((2^20)*Range)      ' +2 dB RF Output power
+Reg(4,f)=1670377980+((2^20)*Range)      ' +5 dB RF Output power
 end sub
 
 Setup:
-screen 18 :cls
+'screen 18 :cls
 print "MAX2871_Command_4.bas by WN2A for PROJECT#3 Signal Generator"
 print "Use with Arduino MAX2871_Load_Word_115200_3.ino"
 print "Supports 23.5-6000MHz. REF freq=60MHz, Experimental version with Fraction_Opt"
@@ -72,9 +82,10 @@ print "********   This version is only Beta!  ********************"
 print " 1) With above sketch loaded into Arduino, start the Arduino IDE"
 print " 2) Check for Serial Port#, open Serial Monitor, and set Baud=115200. Close IDE" 
 print "Refer to README_MAX2871_Command.bas.txt !!":print
-input "Now enter ttyACM Port 0,1 or 2 < 0 default> ";Ans1 : if Ans1="" then Ans1="0"
+'input "Now enter ttyACM Port 0,1 or 2 < 0 default> ";Ans1 : if Ans1="" then Ans1="0"
+input "Now enter ttyUSB Port 0,1 or 2 < 1 default> ";Ans1 : if Ans1="" then Ans1="1"
 Ans2="115200" : Fref=60e6 : RefDiv=4 : Fpfd=Fref/RefDiv
-ComStr="/dev/ttyACM"+Ans1+":"+Ans2+",N,8,1"
+ComStr="/dev/ttyUSB"+Ans1+":"+Ans2+",N,8,1"
 open com Comstr as #1
 
  
@@ -89,7 +100,11 @@ print
 input "Enter Frequency [MHz] <q> to quit";Ans : if Ans="q" then goto Sleepy
 Frf=val(Ans) : if (23.5>Frf) or (Frf>6000) then print Remark 
 Math
-if Flag=0 then Transmit else TransmitF
+
+'for m=0 to 9
+    if Flag=0 then Transmit else TransmitF
+'next m
+
 goto Manual
 
 Swept:
@@ -110,6 +125,9 @@ close #1
 sleep
 
 Datarow1: 'For MAX2871 Initialization
-  data  13093080,541097977,1476465218,4160782339,1674572284,2151677957 '374.596154 MHz
-
+'  data  13093080, 541097977, 1476465218, 4160782339, 1674572068, 2151677957 '374.596154 MHz
+'      different  different    !Read R6!     same       -4 dBm       Wrong                   
+'  data   6990504, 536936441, 1073779266, 4160782339, 1675620860,   20971525 '374.596154 MHz
+'          N      phase val     same        same       +5 dBm                                 
+  data   4292616, 536903697, 1073779266, 4160782339, 1674572228, 20971525 '374.596154 MHz
 
