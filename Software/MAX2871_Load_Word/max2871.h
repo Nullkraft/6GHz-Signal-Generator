@@ -29,13 +29,13 @@ typedef struct maxRegisters {
 class MAX2871_LO {
   public:
     // Constructor
-    MAX2871_LO(uint8_t csPin);
+    // MAX2871_LO(uint8_t csPin);
 
     // Initialization
     void begin();
     void initialize(uint8_t);
 
-    const max2871Registers Default;   // Default read-only copy of the registers
+    // const max2871Registers Default;   // Default read-only copy of the registers
     max2871Registers Curr;            // Modifiable copy of the registers for LO3
 
     /* 6 bit mask of Embedded Data from serial Specific Command */

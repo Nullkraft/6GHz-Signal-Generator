@@ -18,7 +18,7 @@ const uint8_t CLOCK_PIN     = A1;   // MAX2871 SCLK
 const uint8_t DATA_PIN      = A2;   // MAX2871 DATA
 const uint8_t LO_SEL_PIN    = A3;   // MAX2871 LE
 
-MAX2871_LO LO = MAX2871_LO(LO_SEL_PIN);
+MAX2871_LO LO = MAX2871_LO();
 
 int addr;
 
@@ -46,8 +46,13 @@ void setup() {
   Serial.println("MAX2871_Load_Word_115200_5.ino 21 May 2021");
 }
 
-
-
+/* Example register programming values for a 60 MHz reference clock
+ MHz   R[5]      R[4]    R[3]    R[2]       R[1]     R[0]
+ 30   4194309,1677623548,7971,2550161218,1073807377,2097152
+ 40   4194309,1677623548,7971,2550161218,1073807385,2785288
+ 60   4194309,1676574972,7971,2550161218,1073808361,2097152
+ 90   4194309,1676574972,7971,2550161218,1073808361,3145728
+*/
 void loop() {
   if (Serial.available()) {
     reg = Serial.parseInt();
@@ -56,11 +61,11 @@ void loop() {
   if (reg > 0) {
     addr = reg & 0x00000007;    // First 3 bits are the chip Register address
     if (LO.Curr.Reg[addr] != reg) {
+      LO.Curr.Reg[addr] = reg;
+      spiWriteLO(LO.Curr.Reg[addr], LO_SEL_PIN);
       Serial.print("Reg[");
       Serial.print(addr);
       Serial.println("] updated");
-      LO.Curr.Reg[addr] = reg;
-      spiWriteLO(LO.Curr.Reg[addr], LO_SEL_PIN);
     }
     Status();
   }
