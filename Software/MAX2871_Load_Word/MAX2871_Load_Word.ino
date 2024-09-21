@@ -6,32 +6,65 @@
 //  Notes   : Code for using MAX2871 Synth (1 Register at a time)
 //  Use with FreeBasic Program MAX2871_Command_8.bas or higher
 //************************************************
-#include <SPI.h>
 #include "max2871.h"
 
-uint32_t z;
+uint32_t reg;
 
-const int LOCK_PIN      =  3;   // MAX2871 Lock Detect
-const int RF_EN_PIN     =  5;   // MAX2871 RF_EN
-const int STROBE_PIN    = 11;   // MAX2871 STROBE
-const int RF_EN_SWX_PIN = 12;   // Arduino RF enable signal. H=Enable
-const int PLL_MUX_PIN   = A0;
-const int CLOCK_PIN     = A1;   // MAX2871 SCLK
-const int DATA_PIN      = A2;   // MAX2871 DATA
-const int LO_SEL_PIN    = A3;   // MAX2871 LE
+const uint8_t LOCK_PIN      =  3;   // MAX2871 Lock Detect
+const uint8_t RF_EN_PIN     =  5;   // MAX2871 RF_EN
+const uint8_t RF_EN_SWX_PIN = 12;   // Arduino RF enable signal. H=Enable
+const uint8_t PLL_MUX_PIN   = A0;
+const uint8_t CLOCK_PIN     = A1;   // MAX2871 SCLK
+const uint8_t DATA_PIN      = A2;   // MAX2871 DATA
+const uint8_t LO_SEL_PIN    = A3;   // MAX2871 LE
 
-MAX2871_LO LO = MAX2871_LO();
+MAX2871_LO LO = MAX2871_LO(LO_SEL_PIN);
 
-// When the mux pin is configured for Digital Lock Detect output
-// we can read the status of the pin from here.
-void MuxTest() {
-  char* LOStatus = " LO UNLOCKED";
+int addr;
 
-  if (digitalRead(PLL_MUX_PIN)) {
-    LOStatus = " LO LOCKED";
-  }
+
+void setup() {
+  // set pins to output because they are addressed in the main loop
+  pinMode(LOCK_PIN, INPUT);
+  pinMode(RF_EN_PIN, OUTPUT);
+  pinMode(RF_EN_SWX_PIN, INPUT_PULLUP);
+  pinMode(PLL_MUX_PIN, INPUT);
+  pinMode(CLOCK_PIN, OUTPUT);
+  pinMode(DATA_PIN, OUTPUT);
+  pinMode(LO_SEL_PIN, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
   
-  Serial.println(LOStatus);
+  digitalWrite(RF_EN_PIN, HIGH);        // Initially turn on MAX2871 RF Output
+  digitalWrite(LED_BUILTIN, LOW);       // Initially, turn off Lock Detect Indicator
+  digitalWrite(LO_SEL_PIN, LOW);        // Latch must start LOW
+
+  Serial.begin(115200);
+
+  initialize(LO_SEL_PIN);
+  // initialize_LO(LO_SEL_PIN, do_init);
+  // initialize_LO(LO_SEL_PIN, dont_init);
+  Serial.println("MAX2871_Load_Word_115200_5.ino 21 May 2021");
+}
+
+
+
+void loop() {
+  if (Serial.available()) {
+    reg = Serial.parseInt();
+  }
+
+  if (reg > 0) {
+    addr = reg & 0x00000007;    // First 3 bits are the chip Register address
+    if (LO.Curr.Reg[addr] != reg) {
+      Serial.print("Reg[");
+      Serial.print(addr);
+      Serial.println("] updated");
+      LO.Curr.Reg[addr] = reg;
+      spiWriteLO(LO.Curr.Reg[addr], LO_SEL_PIN);
+    }
+    Status();
+  }
+  reg = 0;
 }
 
 
@@ -39,18 +72,19 @@ void MuxTest() {
    pg. 13 4-Wire Serial Interface during initialization there should be a 20mS delay after programming
    register 5.                                                  Document Version: 19-7106; Rev 4; 6/20
 */
-void initialize_LO(uint8_t selectPin, bool initialize) {
-  spiWriteLO(LO.Curr.Reg[5], selectPin);    // First we program LO Register 5
-  if (initialize) {
-    delay(20);  // Only if it's our first time must we wait 20 mSec
-  }
-  for (int x = 4; x >= 0; x--) {
-    spiWriteLO(LO.Curr.Reg[x], selectPin); // Program remaining registers
-  }
+void initialize(uint8_t csPin) {
+  spiWriteLO(LO.Curr.Reg[5], csPin);    // First we program LO Register 5
+  delay(20);  // wait 20 mSec for MAX2871 internal capacitors to charge
+  spiWriteLO(LO.Curr.Reg[4], csPin); // Program remaining registers
+  spiWriteLO(LO.Curr.Reg[3], csPin); // Program remaining registers
+  spiWriteLO(LO.Curr.Reg[2], csPin); // Program remaining registers
+  spiWriteLO(LO.Curr.Reg[1], csPin); // Program remaining registers
+  spiWriteLO(LO.Curr.Reg[0], csPin); // Program remaining registers
   delay(1);                               // Short delay before reading Register 6
   MuxTest();                              // Check if LO is locked by reading the Mux pin
-  spiWriteLO(LO.Curr.Reg[6], selectPin);  // Tri-stating the mux output disables LO2 lock detect
+  spiWriteLO(LO.Curr.Reg[6], csPin);  // Tri-stating the mux output disables LO2 lock detect
 }
+
 
 // Program a single register of the selected LO by sending and latching 4 bytes
 void spiWriteLO(uint32_t reg, uint8_t selectPin) {
@@ -64,6 +98,8 @@ void spiWriteLO(uint32_t reg, uint8_t selectPin) {
   delayMicroseconds(10);
   digitalWrite(LO_SEL_PIN, LOW);
 }
+
+
 
 //Test LOCK_PIN.RF_EN_SWX_PIN, drive GRN light
 void Status() {
@@ -87,49 +123,15 @@ void Status() {
   // stat=0 unlock,RF off; 1= unlock,RF on; 2=lock, RF off; 3=lock,RF on
 }
 
-bool DONE = false;
-int addr;
-char* message = "MAX2871_Load_Word_115200_5.ino 21 May 2021";
 
-void setup() {
-  // set pins to output because they are addressed in the main loop
-  pinMode(LOCK_PIN, INPUT);
-  pinMode(RF_EN_PIN, OUTPUT);
-  pinMode(STROBE_PIN, OUTPUT);
-  pinMode(RF_EN_SWX_PIN, INPUT_PULLUP);
-  pinMode(PLL_MUX_PIN, INPUT);
-  pinMode(CLOCK_PIN, OUTPUT);
-  pinMode(DATA_PIN, OUTPUT);
-  pinMode(LO_SEL_PIN, OUTPUT);
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(RF_EN_PIN, LOW);         // Initially turn off MAX2871 RF Output
-  digitalWrite(LED_BUILTIN, HIGH);  // Initially, turn off Lock Detect Indicator
-  digitalWrite(LO_SEL_PIN, LOW);   // Latch must start LOW
-  digitalWrite(STROBE_PIN, HIGH);       // Strobe HIGH so you know it's ready before starting
-  Serial.begin(2000000);
-}
+// When the mux pin is configured for Digital Lock Detect output
+// we can read the status of the pin from here.
+void MuxTest() {
+  char* LOStatus = " LO UNLOCKED";
 
-void loop() {
-  if (!DONE) {
-    initialize_LO(LO_SEL_PIN, true);
-    initialize_LO(LO_SEL_PIN, false);
-    Serial.println(" !DONE");
-    Serial.println(message);
-    Serial.println(" Stepped over println message");
-    DONE = true;
-  }
-  if (Serial.available()) {
-    z = Serial.parseInt();
+  if (digitalRead(PLL_MUX_PIN)) {
+    LOStatus = " LO LOCKED";
   }
   
-  if (z > 0) {
-    addr = z & 0x00000007;    // First 3 bits are the chip Register address
-    if (LO.Curr.Reg[addr] != z) {
-      Serial.println("Reg[addr] != z");
-      LO.Curr.Reg[addr] = z;
-      spiWriteLO(LO.Curr.Reg[addr], LO_SEL_PIN);
-    }
-    Status();
-  }
-  z = 0;
+  Serial.println(LOStatus);
 }
