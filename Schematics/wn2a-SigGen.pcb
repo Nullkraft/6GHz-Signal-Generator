@@ -1953,7 +1953,7 @@ NetList()
 		Connect("D1-1")
 		Connect("J1-7")
 	)
-	Net("unnamed_net6" "(unknown)")
+	Net("+5_VDC" "(unknown)")
 	(
 		Connect("D2-2")
 		Connect("J1-26")
@@ -1971,7 +1971,7 @@ NetList()
 	(
 		Connect("J1-10")
 	)
-	Net("unnamed_net10" "(unknown)")
+	Net("+5_Vout" "(unknown)")
 	(
 		Connect("D3-2")
 		Connect("J1-23")
